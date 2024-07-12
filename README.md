@@ -17,6 +17,9 @@
 - npm 8.3.1
 ## Example
 > let model = new Model('categorical_crossentropy', earlyStoppingCallback, epochEndCallback, ['loss', 'progress']);
+>
 > model.add(new Dense(784, 10, 'leaky_relu'));
+>
 > model.add(new Dense(10, 10, 'softmax'));
+>
 > model.summary();
