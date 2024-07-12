@@ -74,15 +74,15 @@ export function xavierInit(fanIn, fanOut) {
 
 // sigmoid
 export function sigmoid(arr) {
-    return arr.map(x=> 1.0 / (1 + Math.exp(-x)));
+    return arr.map(x => 1.0 / (1 + Math.exp(-x)));
 }
 
 export function sigmoidDerivative(arr) {
-    return arr.map(x=> x * (1 - x));
+    return arr.map(x => x * (1 - x));
 }
 // relu
 export function relu(arr) {
-    return arr.map(x=> x < 0 ? 0 : x);
+    return arr.map(x => x < 0 ? 0 : x);
 }
 export function reluDerivative(arr) {
     return arr.map(x <= 0 ? 0 : 1);
@@ -328,13 +328,13 @@ export class Model {
                 // count accuracy
                 let pred = this.outputs.indexOf(Math.max(...this.outputs));
                 let target = targets[i].indexOf(Math.max(...targets[i]));
-                if(pred === target) {
+                if (pred === target) {
                     accuracy++;
                 }
                 // show progress
                 let count = i + 1;
                 if (count % 100 === 0 && this.monitors && this.monitors.includes('progress')) {
-                bar.update(count, { loss: totalLoss / count, accuracy: (accuracy * 100.0/count).toFixed(2) });
+                    bar.update(count, { loss: totalLoss / count, accuracy: (accuracy * 100.0 / count).toFixed(2) });
                 }
             }
             bar.stop();
@@ -342,7 +342,7 @@ export class Model {
             let loss = totalLoss / inputs.length;
             this.lossHistory.push(loss);
             if (this.monitors && this.monitors.includes('loss')) {
-                console.log(`Epoch: ${epoch}, Loss: ${loss}, Accuracy: ${(accuracy * 100.0/inputs.length).toFixed(2)}`);
+                console.log(`Epoch: ${epoch}, Loss: ${loss}, Accuracy: ${(accuracy * 100.0 / inputs.length).toFixed(2)}`);
             }
 
             // callbacks
@@ -445,16 +445,16 @@ const xTest = preprocessImages(testImages);
 const yTrain = convertToOneHot(trainLabels, 10);
 const yTest = convertToOneHot(testLabels, 10);
 
-const epochEndCallback = (model, epoch, loss) => { 
-    if(epoch === 0 || loss < model.lossHistory[epoch - 1]) {
+const epochEndCallback = (model, epoch, loss) => {
+    if (epoch === 0 || loss < model.lossHistory[epoch - 1]) {
         model.save('./mnist_model.any_extension');
     }
 }
 
 const earlyStoppingCallback = (model, epoch, loss) => {
     return loss < 0.3;
- }
-let model = new Model('categorical_crossentropy',earlyStoppingCallback, epochEndCallback, ['loss', 'progress']);
+}
+let model = new Model('categorical_crossentropy', earlyStoppingCallback, epochEndCallback, ['loss', 'progress']);
 model.add(new Dense(784, 10, 'leaky_relu'));
 model.add(new Dense(10, 10, 'softmax'));
 // model.load('./mnist_model.any_extension');
@@ -465,9 +465,9 @@ model.train(xTrain, yTrain, 10, 0.001);
 let acc = 0;
 for (let idx = 0; idx < yTest.length; idx++) {
     let output = model.forward(xTest[idx]);
-    if(testLabels[idx] === output.indexOf(Math.max(...output))) {
+    if (testLabels[idx] === output.indexOf(Math.max(...output))) {
         acc++;
     }
 }
 
-console.log(`Test Accuracy: ${acc} / ${testLabels.length} ~ ${(acc*100.0/testLabels.length).toFixed(2)}%`);
+console.log(`Test Accuracy: ${acc} / ${testLabels.length} ~ ${(acc * 100.0 / testLabels.length).toFixed(2)}%`);
