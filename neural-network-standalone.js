@@ -208,10 +208,10 @@ class Dense extends Layer {
         this.gradInputs = new Array(this.inputs.length).fill(0);
         this.gradWeights = this.inputs.map(() => new Array(this.outputs.length).fill(0));
         this.gradBiases = new Array(this.outputs.length).fill(0);
-        let outputs = this.derivativeFunc(this.outputs);
+        let derivativeOutputs = this.derivativeFunc(this.outputs);
         for (let i = 0; i < this.inputs.length; i++) {
             for (let j = 0; j < this.outputs.length; j++) {
-                let derivativeValue = outputs[j];
+                let derivativeValue = derivativeOutputs[j];
                 this.gradInputs[i] += grad[j] * this.weights[i][j] * derivativeValue;
                 this.gradWeights[i][j] = grad[j] * this.inputs[i] * derivativeValue;
                 this.gradBiases[j] += grad[j] * derivativeValue;
