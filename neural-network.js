@@ -235,7 +235,8 @@ export class Dense extends Layer {
             let z = sumArr(this.inputs.map((input, j) => transposed[i][j] * input)) + bias;
             this.outputs.push(z);
         }
-        return this.activeFunc(this.outputs);
+        this.outputs = this.activeFunc(this.outputs);
+        return this.outputs;
     }
 
     backward(grad, lr) {
