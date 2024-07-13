@@ -68,28 +68,28 @@ function xavierInit(fanIn, fanOut) {
 }
 
 // sigmoid
-export function sigmoid(arr) {
+function sigmoid(arr) {
     return arr.map(x => 1.0 / (1 + Math.exp(-x)));
 }
 
-export function sigmoidDerivative(arr) {
+function sigmoidDerivative(arr) {
     return arr.map(x => x * (1 - x));
 }
 
 // relu
-export function relu(arr) {
+function relu(arr) {
     return arr.map(x => x > 0 ? x : 0);
 }
 
-export function reluDerivative(arr) {
+function reluDerivative(arr) {
     return arr.map(x => x > 0 ? 1 : 0);
 }
 
-export function leakyRelu(arr, alpha = 0.001) {
+function leakyRelu(arr, alpha = 0.001) {
     return arr.map(x => x > 0 ? x : alpha * x);
 }
 
-export function leakyReluDerivative(arr, alpha = 0.001) {
+function leakyReluDerivative(arr, alpha = 0.001) {
     return arr.map(x => x > 0 ? 1 : alpha);
 }
 
