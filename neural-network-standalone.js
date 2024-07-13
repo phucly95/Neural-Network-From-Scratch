@@ -194,10 +194,13 @@ class Dense extends Layer {
     forward(inputs) {
         // save input for backward
         this.inputs = inputs;
-        let transposed = transpose(this.weights);
         this.outputs = [];
         for (const [i, bias] of this.biases.entries()) {
-            let z = sumArr(this.inputs.map((input, j) => transposed[i][j] * input)) + bias;
+            /* weights look like:
+                [[w00,w01,w02],
+                [w10,w11,w12]]*/
+            // so we need do it like: w[0][0] * input[0] + w[1][0] * input[1] + ... + w[n][0] * input[n] (n = inputs.length - 1)
+            let z = sumArr(this.inputs.map((input, j) => this.weights[j][i] * input)) + bias;
             this.outputs.push(z);
         }
         this.outputs = this.activeFunc(this.outputs);
@@ -205,9 +208,9 @@ class Dense extends Layer {
     }
 
     backward(grad, lr) {
-        this.gradInputs = new Array(this.inputs.length).fill(0);
-        this.gradWeights = this.inputs.map(() => new Array(this.outputs.length).fill(0));
-        this.gradBiases = new Array(this.outputs.length).fill(0);
+        this.gradInputs = new Array(this.inputs.length).fill(0); // calculate gradient for previous layer
+        this.gradWeights = this.inputs.map(() => new Array(this.outputs.length).fill(0)); // calculate gradient weights for this layer
+        this.gradBiases = new Array(this.outputs.length).fill(0); // calculate gradient biases for this layer
         let derivativeOutputs = this.derivativeFunc(this.outputs);
         for (let i = 0; i < this.inputs.length; i++) {
             for (let j = 0; j < this.outputs.length; j++) {
@@ -222,7 +225,7 @@ class Dense extends Layer {
                 }
             }
         }
-        return this.gradInputs;
+        return this.gradInputs; // return for previous layer using to calculate gradient
     }
 }
 
@@ -271,6 +274,7 @@ class Model {
 
     backward(targets, lr) {
         let grad = this.lossFuncGradient(this.outputs, targets);
+        // calculate gradient from last layer to first layer
         for (let i = this.layers.length - 1; i >= 0; i--) {
             grad = this.layers[i].backward(grad, lr)
         }
