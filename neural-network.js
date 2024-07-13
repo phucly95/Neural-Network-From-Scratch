@@ -348,6 +348,7 @@ export class Model {
             // callbacks
             typeof this.epochEndCb === 'function' && this.epochEndCb(this, epoch, loss);
             if (typeof this.earlyStoppingCb === 'function' && this.earlyStoppingCb(this, epoch, loss)) {
+                console.log('Early stopping !');
                 break;
             };
 
@@ -457,11 +458,9 @@ const earlyStoppingCallback = (model, epoch, loss) => {
 let model = new Model('categorical_crossentropy', earlyStoppingCallback, epochEndCallback, ['loss', 'progress']);
 model.add(new Dense(784, 10, 'leaky_relu'));
 model.add(new Dense(10, 10, 'softmax'));
-// model.load('./mnist_model.any_extension');
-model.summary()
+model.summary();
 
 model.train(xTrain, yTrain, 10, 0.001);
-// model.save('./mnist_model.any_extension')
 let acc = 0;
 for (let idx = 0; idx < yTest.length; idx++) {
     let output = model.forward(xTest[idx]);
