@@ -1,20 +1,15 @@
-import fs from 'fs';
-import cliProgress from 'cli-progress';
-import colors from 'ansi-colors';
-
-const mappedClasses = new Map();
 const initHE = ['relu', 'leaky_relu', 'softmax'];
 
 // sum all items in array 2d
-export function sumArr(arr) {
+function sumArr(arr) {
     return arr.reduce((acc, curr) => acc + curr, 0);
 }
 // random in range [min,max]
-export function getRandomArbitrary(min, max) {
+function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
 }
 
-export function randn() {
+function randn() {
     // Create random in range [0, 1)
     let u1 = Math.random();
     let u2 = Math.random();
@@ -33,7 +28,7 @@ transpose to
  [w01,w11],
  [w02,w12]]
 */
-export function transpose(weights) {
+function transpose(weights) {
     let result = []
     for (let i = 0; i < weights[0].length; i++) {
         let r = [];
@@ -45,7 +40,7 @@ export function transpose(weights) {
     return result;
 }
 
-export function heInit(fanIn, fanOut) {
+function heInit(fanIn, fanOut) {
     const scale = Math.sqrt(2 / fanIn);
     scale * randn();
     let result = [];
@@ -59,7 +54,7 @@ export function heInit(fanIn, fanOut) {
     return result;
 }
 
-export function xavierInit(fanIn, fanOut) {
+function xavierInit(fanIn, fanOut) {
     const scale = Math.sqrt(6 / (fanIn + fanOut));
     let result = [];
     for (let i = 0; i < fanIn; i++) {
@@ -80,48 +75,52 @@ export function sigmoid(arr) {
 export function sigmoidDerivative(arr) {
     return arr.map(x => x * (1 - x));
 }
+
 // relu
 export function relu(arr) {
     return arr.map(x => x > 0 ? x : 0);
 }
+
 export function reluDerivative(arr) {
-    return arr.map(x > 0 ? 1 : 0);
+    return arr.map(x => x > 0 ? 1 : 0);
 }
 
 export function leakyRelu(arr, alpha = 0.001) {
     return arr.map(x => x > 0 ? x : alpha * x);
 }
+
 export function leakyReluDerivative(arr, alpha = 0.001) {
     return arr.map(x => x > 0 ? 1 : alpha);
 }
+
 // softmax
-export function softmax(arr) {
+function softmax(arr) {
     let maxX = Math.max(...arr);
     let expX = arr.map((v) => Math.exp(v - maxX));
     let sum = expX.reduce((acc, curr) => acc + curr, 0);
     return expX.map((v) => v / sum);
 }
-export function softmaxDerivative(arr) {
+function softmaxDerivative(arr) {
     let s = softmax(arr);
     return arr.map((v, idx) => s[idx] * (1 - s[idx]));
 }
 // MSE loss
-export function mse(y_pred, y_true) {
+function mse(y_pred, y_true) {
     return y_pred.map((_, idx) => (y_pred[idx] - y_true[idx]) ** 2);
 }
-export function mseGradient(y_pred, y_true) {
+function mseGradient(y_pred, y_true) {
     return y_pred.map((_, idx) => (y_pred[idx] - y_true[idx]));
 }
 // Categorical Cross Entropy loss
-export function categoricalCrossEntropy(y_pred, y_true) {
+function categoricalCrossEntropy(y_pred, y_true) {
     return y_true.map((_, i) => (-y_true[i] * Math.log(y_pred[i])));
 }
 
-export function categoricalCrossEntropyGradient(y_pred, y_true) {
+function categoricalCrossEntropyGradient(y_pred, y_true) {
     return y_true.map((_, i) => (y_pred[i] - y_true[i]));
 }
 
-export function binaryCrossEntropy(y_pred, y_true) {
+function binaryCrossEntropy(y_pred, y_true) {
     let loss = [];
     for (let i = 0; i < y_true.length; i++) {
         let currentLoss = y_true[i] === 1 ? -Math.log(y_pred[i]) : -Math.log(1 - y_pred[i]);
@@ -129,7 +128,7 @@ export function binaryCrossEntropy(y_pred, y_true) {
     }
     return loss;
 }
-export function binaryCrossEntropyGradient(y_pred, y_true) {
+function binaryCrossEntropyGradient(y_pred, y_true) {
     let gradients = [];
     for (let i = 0; i < y_true.length; i++) {
         if (y_true[i] === 1) {
@@ -141,41 +140,7 @@ export function binaryCrossEntropyGradient(y_pred, y_true) {
     return gradients;
 }
 
-export function writeFile(path, data) {
-    fs.writeFileSync(path, data, 'utf8');
-}
-
-export function readFile(path) {
-    let data
-    try {
-        data = fs.readFileSync(path, 'utf8');
-    } catch (err) {
-        console.error(err);
-    }
-    return data
-}
-
-export function convertToOneHot(labels, numClasses) {
-    const oneHotVectors = [];
-
-    for (const label of labels) {
-        const oneHotVector = new Array(numClasses).fill(0);
-        oneHotVector[label] = 1;
-        oneHotVectors.push(oneHotVector);
-    }
-
-    return oneHotVectors;
-}
-
-export function preprocessImages(images) {
-    let result = []
-    for (const image of images) {
-        result.push(Array.from(image).map(v => v / 255.0));
-    }
-    return result;
-}
-
-export class Layer {
+class Layer {
     weights;
     biases;
     forward() {
@@ -186,7 +151,7 @@ export class Layer {
     }
 }
 
-export class Dense extends Layer {
+class Dense extends Layer {
     inputs;
     outputs;
     gradBiases;
@@ -235,7 +200,8 @@ export class Dense extends Layer {
             let z = sumArr(this.inputs.map((input, j) => transposed[i][j] * input)) + bias;
             this.outputs.push(z);
         }
-        return this.activeFunc(this.outputs);
+        this.outputs = this.activeFunc(this.outputs);
+        return this.outputs;
     }
 
     backward(grad, lr) {
@@ -260,9 +226,7 @@ export class Dense extends Layer {
     }
 }
 
-mappedClasses.set('Dense', Dense);
-
-export class Model {
+class Model {
     loss;
     earlyStoppingCb;
     epochEndCb;
@@ -277,24 +241,28 @@ export class Model {
         this.earlyStoppingCb = earlyStoppingCb;
         this.epochEndCb = epochEndCb;
         this.monitors = monitors;
-        if (loss === 'categorical_crossentropy') {
-            this.lossFunc = categoricalCrossEntropy;
-            this.lossFuncGradient = categoricalCrossEntropyGradient;
-        }
-        if (loss === 'mse') {
-            this.lossFunc = mse;
-            this.lossFuncGradient = mseGradient;
-        }
-        if (loss === 'binary_crossentropy') {
-            this.lossFunc = binaryCrossEntropy;
-            this.lossFuncGradient = binaryCrossEntropyGradient;
+        switch (loss) {
+            case 'categorical_crossentropy':
+                this.lossFunc = categoricalCrossEntropy;
+                this.lossFuncGradient = categoricalCrossEntropyGradient;
+                break;
+            case 'mse':
+                this.lossFunc = mse;
+                this.lossFuncGradient = mseGradient;
+                break;
+            case 'binary_crossentropy':
+                this.lossFunc = binaryCrossEntropy;
+                this.lossFuncGradient = binaryCrossEntropyGradient;
+                break;
+            default:
+                break;
         }
     }
     add(layer) {
         this.layers.push(layer);
     }
     forward(inputs) {
-        let outputs = inputs;
+        let outputs = [...inputs];
         for (const layer of this.layers) {
             outputs = layer.forward(outputs)
         }
@@ -311,44 +279,23 @@ export class Model {
     train(inputs, targets, epochs, learningRate) {
         for (let epoch = 0; epoch < epochs; epoch++) {
             let totalLoss = 0;
-            let accuracy = 0;
             // training each epoch
-            const bar = new cliProgress.SingleBar({
-                format: '{value}/{total} |' + colors.cyan('{bar}') + '| {percentage}% | Loss: {loss} | Accuracy: {accuracy}%',
-                barCompleteChar: '\u2588',
-                barIncompleteChar: '\u2591',
-                hideCursor: true
-            });
-            bar.start(inputs.length, 1, { loss: 0, accuracy: 0 });
             for (let i = 0; i < targets.length; i++) {
                 // propagation
                 this.outputs = this.forward(inputs[i]);
                 totalLoss += sumArr(this.lossFunc(this.outputs, targets[i]));
                 this.backward(targets[i], learningRate);
-                // count accuracy
-                let pred = this.outputs.indexOf(Math.max(...this.outputs));
-                let target = targets[i].indexOf(Math.max(...targets[i]));
-                if (pred === target) {
-                    accuracy++;
-                }
-                // show progress
-                let count = i + 1;
-                if (count % 100 === 0 && this.monitors && this.monitors.includes('progress')) {
-                    bar.update(count, { loss: totalLoss / count, accuracy: (accuracy * 100.0 / count).toFixed(2) });
-                }
             }
-            bar.stop();
             // avg loss
             let loss = totalLoss / inputs.length;
             this.lossHistory.push(loss);
             if (this.monitors && this.monitors.includes('loss')) {
-                console.log(`Epoch: ${epoch}, Loss: ${loss}, Accuracy: ${(accuracy * 100.0 / inputs.length).toFixed(2)}%`);
+                console.log(`Epoch: ${epoch}, Loss: ${loss}`);
             }
 
             // callbacks
             typeof this.epochEndCb === 'function' && this.epochEndCb(this, epoch, loss);
             if (typeof this.earlyStoppingCb === 'function' && this.earlyStoppingCb(this, epoch, loss)) {
-                console.log('Early stopping !');
                 break;
             };
 
@@ -366,107 +313,27 @@ export class Model {
         console.log(`Total Params: ${totalParams}`)
         console.log(`====================`)
     }
-
-    save(path) {
-        const data = {
-            classes: this.layers.map(l => l.constructor.name),
-            layers: this.layers
-        };
-        writeFile(path, JSON.stringify(data));
-        console.log(`Saved: ${path}`)
-    }
-
-    load(path) {
-        let data = JSON.parse(readFile(path));
-        const classes = data.classes;
-        const layers = data.layers;
-        const layersTmp = [];
-        for (let i = 0; i < layers.length; i++) {
-            const layerClass = mappedClasses.get(classes[i]);
-            let layer = new layerClass(layers[i].input_size, layers[i].output_size, layers[i].active);
-            layer.weights = layers[i].weights;
-            layer.biases = layers[i].biases;
-            layersTmp.push(layer);
-        }
-        this.layers = layersTmp;
-        console.log(`Loaded: ${path}`);
-        this.summary();
-    }
 }
-
-function parseImages(buffer) {
-    const header = buffer.slice(0, 16);
-    const magic = header.readInt32BE(0);
-    const numImages = header.readInt32BE(4);
-    const rows = header.readInt32BE(8);
-    const cols = header.readInt32BE(12);
-
-    const data = [];
-    let offset = 16;
-    for (let i = 0; i < numImages; i++) {
-        const image = new Uint8Array(buffer.slice(offset, offset + rows * cols));
-        data.push(image);
-        offset += rows * cols;
-    }
-
-    return data;
-}
-
-function parseLabels(buffer) {
-    const header = buffer.slice(0, 8);
-    const magic = header.readInt32BE(0);
-    const numLabels = header.readInt32BE(4);
-
-    const data = new Uint8Array(buffer.slice(8));
-    return data;
-}
-export function loadMNIST() {
-    // Load training data
-    const trainImagesBuf = fs.readFileSync('./mnist-data/train-images.idx3-ubyte');
-    const trainLabelsBuf = fs.readFileSync('./mnist-data/train-labels.idx1-ubyte');
-
-    // Load test data
-    const testImagesBuf = fs.readFileSync('./mnist-data/t10k-images.idx3-ubyte');
-    const testLabelsBuf = fs.readFileSync('./mnist-data/t10k-labels.idx1-ubyte');
-
-
-    const trainImages = parseImages(trainImagesBuf);
-    const trainLabels = parseLabels(trainLabelsBuf);
-    const testImages = parseImages(testImagesBuf);
-    const testLabels = parseLabels(testLabelsBuf);
-    return { trainImages, trainLabels, testImages, testLabels };
-}
-
-const { trainImages, trainLabels, testImages, testLabels } = loadMNIST();
-// preprocess images
-const xTrain = preprocessImages(trainImages);
-const xTest = preprocessImages(testImages);
-
-// preprocess labels (convert to one hot vector)
-const yTrain = convertToOneHot(trainLabels, 10);
-const yTest = convertToOneHot(testLabels, 10);
 
 const epochEndCallback = (model, epoch, loss) => {
     if (epoch === 0 || loss < model.lossHistory[epoch - 1]) {
-        model.save('./mnist_model.any_extension');
+        // model.save('./simple-model.any_extension');
     }
 }
 
 const earlyStoppingCallback = (model, epoch, loss) => {
-    return loss < 0.3;
-}
-let model = new Model('categorical_crossentropy', earlyStoppingCallback, epochEndCallback, ['loss', 'progress']);
-model.add(new Dense(784, 10, 'leaky_relu'));
-model.add(new Dense(10, 10, 'softmax'));
-model.summary();
-
-model.train(xTrain, yTrain, 10, 0.001);
-let acc = 0;
-for (let idx = 0; idx < yTest.length; idx++) {
-    let output = model.forward(xTest[idx]);
-    if (testLabels[idx] === output.indexOf(Math.max(...output))) {
-        acc++;
-    }
+    return loss < 0.0003;
 }
 
-console.log(`Test Accuracy: ${acc} / ${testLabels.length} ~ ${(acc * 100.0 / testLabels.length).toFixed(2)}%`);
+let model = new Model('mse', earlyStoppingCallback, epochEndCallback, ['loss', 'progress']);
+model.add(new Dense(2, 3, 'leaky_relu'));
+model.add(new Dense(3, 1, 'sigmoid'));
+model.summary()
+
+let xTrain = [[0, 0], [0, 1], [1, 0], [1, 1]];
+let yTrain = [[0], [1], [1], [0]];
+model.train(xTrain, yTrain, 1000, 0.1);
+for (let idx = 0; idx < yTrain.length; idx++) {
+    let output = model.forward(xTrain[idx]);
+    console.log(output)
+}
