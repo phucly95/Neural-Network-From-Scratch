@@ -296,9 +296,9 @@ class Model {
             // callbacks
             typeof this.epochEndCb === 'function' && this.epochEndCb(this, epoch, loss);
             if (typeof this.earlyStoppingCb === 'function' && this.earlyStoppingCb(this, epoch, loss)) {
+                console.log('Early stopping !');
                 break;
             };
-
         }
     }
 
