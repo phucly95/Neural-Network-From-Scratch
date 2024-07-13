@@ -1,5 +1,5 @@
 # Build Neural Network From Scratch Without Using ML Framework(tensorflow, pytorch...)
-> **_NOTE:_** This project is inspired by keras framework.
+> **_NOTE:_** This project is inspired by the Keras framework and is just for study purposes.
 ## How to run project
 ### Quick Test
 To quickly test the project, you can copy the code from the neural-network-standalone.js file and paste it into the console tab of your browser.
