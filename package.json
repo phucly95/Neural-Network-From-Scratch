@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "start": "node neural-network.js",
+    "start:alone": "node neural-network-standalone.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "phucnv32@gmail.com",
   "license": "ISC",
   "description": "",
   "dependencies": {

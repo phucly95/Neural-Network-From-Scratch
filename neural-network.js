@@ -82,17 +82,17 @@ export function sigmoidDerivative(arr) {
 }
 // relu
 export function relu(arr) {
-    return arr.map(x => x < 0 ? 0 : x);
+    return arr.map(x => x > 0 ? x : 0);
 }
 export function reluDerivative(arr) {
-    return arr.map(x <= 0 ? 0 : 1);
+    return arr.map(x > 0 ? 1 : 0);
 }
 
 export function leakyRelu(arr, alpha = 0.001) {
-    return arr.map(x => x >= 0 ? x : alpha * x);
+    return arr.map(x => x > 0 ? x : alpha * x);
 }
 export function leakyReluDerivative(arr, alpha = 0.001) {
-    return arr.map(x => x >= 0 ? 1 : alpha);
+    return arr.map(x => x > 0 ? 1 : alpha);
 }
 // softmax
 export function softmax(arr) {
@@ -342,7 +342,7 @@ export class Model {
             let loss = totalLoss / inputs.length;
             this.lossHistory.push(loss);
             if (this.monitors && this.monitors.includes('loss')) {
-                console.log(`Epoch: ${epoch}, Loss: ${loss}, Accuracy: ${(accuracy * 100.0 / inputs.length).toFixed(2)}`);
+                console.log(`Epoch: ${epoch}, Loss: ${loss}, Accuracy: ${(accuracy * 100.0 / inputs.length).toFixed(2)}%`);
             }
 
             // callbacks

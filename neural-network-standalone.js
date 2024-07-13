@@ -68,27 +68,31 @@ function xavierInit(fanIn, fanOut) {
 }
 
 // sigmoid
-function sigmoid(x) {
-    return 1.0 / (1 + Math.exp(-x));
+export function sigmoid(arr) {
+    return arr.map(x => 1.0 / (1 + Math.exp(-x)));
 }
 
-function sigmoidDerivative(x) {
-    return x * (1 - x);
+export function sigmoidDerivative(arr) {
+    return arr.map(x => x * (1 - x));
 }
+
 // relu
-function relu(x) {
-    return x < 0 ? 0 : x;
-}
-function reluDerivative(x) {
-    return x <= 0 ? 0 : 1;
+export function relu(arr) {
+    return arr.map(x => x > 0 ? x : 0);
 }
 
-function leakyRelu(x, alpha = 0.001) {
-    return x >= 0 ? x : alpha * x;
+export function reluDerivative(arr) {
+    return arr.map(x => x > 0 ? 1 : 0);
 }
-function leakyReluDerivative(x, alpha = 0.001) {
-    return x >= 0 ? 1 : alpha;
+
+export function leakyRelu(arr, alpha = 0.001) {
+    return arr.map(x => x > 0 ? x : alpha * x);
 }
+
+export function leakyReluDerivative(arr, alpha = 0.001) {
+    return arr.map(x => x > 0 ? 1 : alpha);
+}
+
 // softmax
 function softmax(arr) {
     let maxX = Math.max(...arr);
@@ -194,8 +198,9 @@ class Dense extends Layer {
         this.outputs = [];
         for (const [i, bias] of this.biases.entries()) {
             let z = sumArr(this.inputs.map((input, j) => transposed[i][j] * input)) + bias;
-            this.outputs.push(this.activeFunc(z));
+            this.outputs.push(z);
         }
+        this.outputs = this.activeFunc(this.outputs);
         return this.outputs;
     }
 
@@ -203,10 +208,10 @@ class Dense extends Layer {
         this.gradInputs = new Array(this.inputs.length).fill(0);
         this.gradWeights = this.inputs.map(() => new Array(this.outputs.length).fill(0));
         this.gradBiases = new Array(this.outputs.length).fill(0);
-        // let outputs = this.derivativeFunc(this.outputs);
+        let outputs = this.derivativeFunc(this.outputs);
         for (let i = 0; i < this.inputs.length; i++) {
             for (let j = 0; j < this.outputs.length; j++) {
-                let derivativeValue = this.derivativeFunc(this.outputs[j]);
+                let derivativeValue = outputs[j];
                 this.gradInputs[i] += grad[j] * this.weights[i][j] * derivativeValue;
                 this.gradWeights[i][j] = grad[j] * this.inputs[i] * derivativeValue;
                 this.gradBiases[j] += grad[j] * derivativeValue;
@@ -327,7 +332,7 @@ model.summary()
 
 let xTrain = [[0, 0], [0, 1], [1, 0], [1, 1]];
 let yTrain = [[0], [1], [1], [0]];
-model.train(xTrain, yTrain, 10000, 0.05);
+model.train(xTrain, yTrain, 1000, 0.1);
 for (let idx = 0; idx < yTrain.length; idx++) {
     let output = model.forward(xTrain[idx]);
     console.log(output)
