@@ -1,6 +1,8 @@
 # Build Neural Network From Scratch Without Using ML Framework(tensorflow, pytorch...)
 > **_NOTE:_** This project is inspired by keras framework.
 ## How to run project
+### To quickly test you can copy code in neural-network-standalone.js file and paste to console tab on browser
+### To run full project, please follow these steps:
 - Download mnist dataset on kaggle https://www.kaggle.com/datasets/hojjatk/mnist-dataset
 - Extract and copy these files to mnist-data folder(create new one if needed):
   + t10k-images.idx3-ubyte
