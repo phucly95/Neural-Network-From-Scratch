@@ -339,5 +339,5 @@ let yTrain = [[0], [1], [1], [0]];
 model.train(xTrain, yTrain, 1000, 0.1);
 for (let idx = 0; idx < yTrain.length; idx++) {
     let output = model.forward(xTrain[idx]);
-    console.log(output)
+    console.log(`Input: [${xTrain[idx]}],Expect: ${yTrain[idx]}, Predict: ${output}`)
 }
