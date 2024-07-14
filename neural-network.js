@@ -268,6 +268,7 @@ mappedClasses.set('Dense', Dense);
 
 export class Model {
     loss;
+    learningRate;
     earlyStoppingCb;
     epochEndCb;
     monitors;
@@ -281,17 +282,21 @@ export class Model {
         this.earlyStoppingCb = earlyStoppingCb;
         this.epochEndCb = epochEndCb;
         this.monitors = monitors;
-        if (loss === 'categorical_crossentropy') {
-            this.lossFunc = categoricalCrossEntropy;
-            this.lossFuncGradient = categoricalCrossEntropyGradient;
-        }
-        if (loss === 'mse') {
-            this.lossFunc = mse;
-            this.lossFuncGradient = mseGradient;
-        }
-        if (loss === 'binary_crossentropy') {
-            this.lossFunc = binaryCrossEntropy;
-            this.lossFuncGradient = binaryCrossEntropyGradient;
+        switch (loss) {
+            case 'categorical_crossentropy':
+                this.lossFunc = categoricalCrossEntropy;
+                this.lossFuncGradient = categoricalCrossEntropyGradient;
+                break;
+            case 'mse':
+                this.lossFunc = mse;
+                this.lossFuncGradient = mseGradient;
+                break;
+            case 'binary_crossentropy':
+                this.lossFunc = binaryCrossEntropy;
+                this.lossFuncGradient = binaryCrossEntropyGradient;
+                break;
+            default:
+                break;
         }
     }
     add(layer) {
@@ -314,6 +319,9 @@ export class Model {
     }
 
     train(inputs, targets, epochs, learningRate) {
+        // store learning rate
+        this.learningRate = learningRate;
+
         for (let epoch = 0; epoch < epochs; epoch++) {
             let totalLoss = 0;
             let accuracy = 0;
@@ -329,7 +337,7 @@ export class Model {
                 // propagation
                 this.outputs = this.forward(inputs[i]);
                 totalLoss += sumArr(this.lossFunc(this.outputs, targets[i]));
-                this.backward(targets[i], learningRate);
+                this.backward(targets[i], this.learningRate);
                 // count accuracy
                 let pred = this.outputs.indexOf(Math.max(...this.outputs));
                 let target = targets[i].indexOf(Math.max(...targets[i]));
@@ -347,7 +355,7 @@ export class Model {
             let loss = totalLoss / inputs.length;
             this.lossHistory.push(loss);
             if (this.monitors && this.monitors.includes('loss')) {
-                console.log(`Epoch: ${epoch}, Loss: ${loss}, Accuracy: ${(accuracy * 100.0 / inputs.length).toFixed(2)}%`);
+                console.log(`Epoch: ${epoch}, Loss: ${loss}, Accuracy: ${(accuracy * 100.0 / inputs.length).toFixed(2)}%, Learning Rate: ${this.learningRate}`);
             }
 
             // callbacks
@@ -452,6 +460,8 @@ const yTrain = convertToOneHot(trainLabels, 10);
 const yTest = convertToOneHot(testLabels, 10);
 
 const epochEndCallback = (model, epoch, loss) => {
+    // dynamic learningRate -5% each epoch
+    model.learningRate = model.learningRate * 0.95;
     if (epoch === 0 || loss < model.lossHistory[epoch - 1]) {
         model.save('./mnist_model.any_extension');
     }
