@@ -473,6 +473,7 @@ const earlyStoppingCallback = (model, epoch, loss) => {
 let model = new Model('categorical_crossentropy', earlyStoppingCallback, epochEndCallback, ['loss', 'progress']);
 model.add(new Dense(784, 10, 'leaky_relu'));
 model.add(new Dense(10, 10, 'softmax'));
+// model.load('./mnist_model.any_extension'); // load weights, biases from saved model
 model.summary();
 
 model.train(xTrain, yTrain, 10, 0.001);
